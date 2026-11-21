@@ -25,9 +25,6 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
       - name: Prepare web assets for Capacitor
         run: |
           mkdir -p www
@@ -42,7 +39,6 @@ jobs:
 
       - name: Add Camera permission to AndroidManifest.xml
         run: |
-          MANIFEST="android/app/src/main/AndroidManifest.xml"
           python3 -c '
           from pathlib import Path
           p = Path("android/app/src/main/AndroidManifest.xml")
@@ -54,7 +50,11 @@ jobs:
           '
 
       - name: Build Debug APK
+        env:
+          ANDROID_HOME: /usr/local/lib/android/sdk
+          ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
         run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses >/dev/null 2>&1 || true
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug
